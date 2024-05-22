@@ -82,11 +82,30 @@ Once again I was running into deadends so I decided to try Nwtwork Miner which i
 <img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/feb67f0b-6d0b-4dbe-a4e4-aff38cd8bd3b" height="50%" width="50%" alt="Ransomware Incident Response"/>
 <br />
 <br />
-Text<br/>
+Finally, I decided to use the Splunk instance to review the incident as this is the tool that I am most experienced with. The first Search Procssing Lnaguage (SPL) query I made was exmaining the Images which in Splunk are locations of binaries rather than Images like a png or jpeg. I immediatly found what was likely the ransomware that I found in redline the cmd.exe with the User Documents folder. I knew it was suspicous becasue cmd.exe should be only in C:\Windows\System32 and seeing it another direcotry is immediatly suspicous. <br/>
+<img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/a2fb3b01-f6cf-4efe-a9fe-97d5ce40c4b8" height="50%" width="50%" alt="Ransomware Incident Response"/>
+<img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/647b995c-3d6c-47df-9e03-92d13a527445" height="50%" width="50%" alt="Ransomware Incident Response"/>
+<br />
+<br />
+I then added the suspicious image to the filter and under extract new fields, i extracted the hashes field so I can confirm whether this is the ransomware I found in Redline. Upon uploading the sha256 hash to VirusTotal it confirmed it is the Conti Ransomware.<br/>
+<img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/c747ad2d-b27f-4089-a113-c4bb87abbf00" height="50%" width="50%" alt="Ransomware Incident Response"/>
+ <img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/d0817c5d-50b9-43c8-97fb-2aad2f470540" height="50%" width="50%" alt="Ransomware Incident Response"/>
+ <img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/897ee06a-d997-4d2b-a31f-6c1e0332341c" height="50%" width="50%" alt="Ransomware Incident Response"/>
+ <img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/c99074fb-283d-44d0-b944-4fb728f77d04" height="50%" width="50%" alt="Ransomware Incident Response"/>
+<br />
+<br />
+Now that I confirmed the Image of the ransomware, I used the field "TargetFilename" and discovered the the ransomnote "readme.txt" saved to multiple locations on the host. <br/>
 <img src="" height="80%" width="80%" alt="Ransomware Incident Response"/>
 <br />
 <br />
-Text<br/>
+Looking at my notes for the investigation so far, I saw how the user "securityninja" was created by the threat actors and wanted to uncover in greater detail how this user was created so I filterd fro the EventCode= 4720 which is account created and found the logs. II then made SPL query for "securityninja" with the CommandLine and ParentCommandLine field and saw the commands used to create, give administrator privielges, and add the user to "Remote Desktop Users" for persistance. <br/>
+<img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/8de546a2-4c5b-431e-81e7-bcbf032b40ae" height="50%" width="50%" alt="Ransomware Incident Response"/>
+ <img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/82b10c03-da6b-4989-ab7d-8413a0707f9c" height="50%" width="50%" alt="Ransomware Incident Response"/>
+ <img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/f461a61f-c68a-4c64-806f-e87f02e564c4" height="50%" width="50%" alt="Ransomware Incident Response"/>
+ <img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/21392712-2e52-4aa7-a84a-59f344299807" height="50%" width="50%" alt="Ransomware Incident Response"/>
+<br />
+<br />
+Since the logs in Splunk had Sysmon logs, I knew that EventCode 8 is avery useful search for threat hunting as it logs CreateRemoteThread which threat actos use that occurs when a process creates a thread in another process. Two very interesting binaries were targeted, "C:\Windows\System32\lsass.exe" and "C:\Windows\System32\unsecapp.exe".<br/>
 <img src="" height="80%" width="80%" alt="Ransomware Incident Response"/>
 <br />
 <br />
