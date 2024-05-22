@@ -95,7 +95,7 @@ I then added the suspicious image to the filter and under extract new fields, i 
 <br />
 <br />
 Now that I confirmed the Image of the ransomware, I used the field "TargetFilename" and discovered the the ransomnote "readme.txt" saved to multiple locations on the host. <br/>
-<img src="" height="80%" width="80%" alt="Ransomware Incident Response"/>
+<img src="(https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/096dbf3f-48db-4dbb-8991-9fa4972b7f87" height="80%" width="80%" alt="Ransomware Incident Response"/>
 <br />
 <br />
 Looking at my notes for the investigation so far, I saw how the user "securityninja" was created by the threat actors and wanted to uncover in greater detail how this user was created so I filterd fro the EventCode= 4720 which is account created and found the logs. II then made SPL query for "securityninja" with the CommandLine and ParentCommandLine field and saw the commands used to create, give administrator privielges, and add the user to "Remote Desktop Users" for persistance. <br/>
@@ -105,32 +105,27 @@ Looking at my notes for the investigation so far, I saw how the user "securityni
  <img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/21392712-2e52-4aa7-a84a-59f344299807" height="50%" width="50%" alt="Ransomware Incident Response"/>
 <br />
 <br />
-Since the logs in Splunk had Sysmon logs, I knew that EventCode 8 is avery useful search for threat hunting as it logs CreateRemoteThread which threat actos use that occurs when a process creates a thread in another process. Two very interesting binaries were targeted, "C:\Windows\System32\lsass.exe" and "C:\Windows\System32\unsecapp.exe".<br/>
-<img src="" height="80%" width="80%" alt="Ransomware Incident Response"/>
+Since the logs in Splunk had Sysmon logs, I knew that EventCode 8 is avery useful search for threat hunting as it logs CreateRemoteThread which threat actos use that occurs when a process creates a thread in another process. Two very interesting binaries were targeted, "C:\Windows\System32\lsass.exe" and "C:\Windows\System32\unsecapp.exe". I know that lsass.exe is a common target for threat actors as It contains authentication hashes. Unsecapp.exe on the other hand, after some researtch I found out that it is Windows Management Instrumentation scripts to be executed from applications or services and that it is used to "adapt the communication between the software of your computer and the remote server".<br/>
+<img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/32f8268e-ac95-4089-91ca-2f05fd32815f" height="80%" width="80%" alt="Ransomware Incident Response"/>
 <br />
 <br />
-Text<br/>
-<img src="" height="80%" width="80%" alt="Ransomware Incident Response"/>
+Lastly in Splunk, filtered to see if the the attackers used powershell and cleared out all the Splunk Forwarder logs and filtered to see if the attackers used Powershell, and I uncovered something really intresting. It used w3wp.exe which after some research I found iout hthat it is an Internet Information Service responsible for handling requests sent to a Web Server for a specific application pool. It spawned a long and heavily obsufcated Powershell script on the exchange server<br/>
+<img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/941ba7c9-19da-4604-a871-3ffd5a2eba7e" height="50%" width="50%" alt="Ransomware Incident Response"/>
+<img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/a8223054-da2f-45f2-9be8-7aef7dc33ef5" height="50%" width="50%" alt="Ransomware Incident Response"/>
 <br />
 <br />
-Text<br/>
-<img src="" height="80%" width="80%" alt="Ransomware Incident Response"/>
+Once it was more clear the attack chain that happened I conducted further research about the Exchange Server attack with Conti Ransomware and came accross an article detailing that the group leverages three vulnerbailites in  Microsoft Exchange Server(CVEs) in their attack chain. One CVE to Bypass security measures, oen for Privlige Escalation and one for Remote Code Execution.<br/>
+<img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/7f8ebf6d-58d4-45ab-83e3-4e41d803e88c" height="50%" width="50%" alt="Ransomware Incident Response"/>
+ <img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/e2ed6d9d-0ffc-4416-9c6b-d307c6ffd62e" height="50%" width="50%" alt="Ransomware Incident Response"/>
+ <img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/fe4ba104-7013-48d5-bdfe-a1e548cf10ae" height="50%" width="50%" alt="Ransomware Incident Response"/>
+ <img src="https://github.com/KirkDJohnson/Ransomware-Incident-Response-Lab/assets/164972007/8296f53a-1f04-45fa-8b5e-836c0c2e47f0" height="50%" width="50%" alt="Ransomware Incident Response"/>
 <br />
 <br />
-Text<br/>
-<img src="" height="80%" width="80%" alt="Ransomware Incident Response"/>
-<br />
-<br />
-Text<br/>
-<img src="" height="80%" width="80%" alt="Ransomware Incident Response"/>
-<br />
-<br />
-
 
 
 
 <h2>Thoughts</h2>
-text
+This lab/CTF was by far the most complex as the information I was looking for to complete the task had no real direction and I challenged myself to try and use Redline to answer as many of the questions as I could which did provide signficant hands on experience using the tool, it also took considerably longer than when I used the Splunk instance to find the same and more evidence of the attack. Moreover, I spent a lot of timesifting throuhg packets in Wireshark and not finding anything. In some ways it was very frusterating not having even a hint on where to look or what tool would be ideal for the situtaion but it also taught me to be through and that in this case no one tool was the best for everything althought I did have the most success with Splunk but ut could have been due to my previousexperience with it. I seemed like the logs I was examining was from a real attack rather than something made in lab for security researchers to practice on due to the complexity of the attack and how many angels and the attackers used to target the excahnge server and then the host machine. Some of my key take aways from this lab were that in this ransomware attack and others I have seen, in the kill chain, there are multiple IP addresses used whtehr it be to establish a command and control server, downlaode additional mawlare or to enuerate the target. Moreover, this lab really upped m yresearching ability as it exposed me to many Windows Processes that I was previously un aware of and being able to quickly research and understand how the attackers levelraged the service is an improtant skill to develop and a security analyst because there will likely be something that you do not know and being able to understand its importance is crucial. 
 <!--
  ```diff
 - text in red
