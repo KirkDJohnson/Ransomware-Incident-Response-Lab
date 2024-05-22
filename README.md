@@ -133,7 +133,6 @@ With ample evidence of the attack now obtained, I conducted further research abo
 
 <h2>Thoughts</h2>
 
-ChatGPT
 This lab/CTF was the most complex I've done thus far, as the task had very little direction and many possible avenues and tools to use. I challenged myself to use Redline to answer as many questions as possible, which provided significant hands-on experience but took considerably longer compared to using Splunk to find the same and more evidence of the attack. Additionally, I spent a lot of time sifting through packets in Wireshark without finding much. It was frustrating not having hints on where to look or which tool to use, but it taught me to be thorough. This experience highlighted that no single tool is best for everything, although I had the most success with Splunk, possibly due to my previous experience with it. The logs I examined felt like they were from a real attack rather than a lab setup for security researchers, due to the complexity of the attack and the multiple angles the attackers used to target the Exchange server and the host machine. My key takeaways from this lab include the observation that ransomware attacks often involve multiple IP addresses for establishing command and control servers, downloading additional malware, or enumerating the target. This lab also improved my research skills, exposing me to many Windows processes I was previously unaware of. Being able to quickly research and understand how attackers leverage these services is a crucial skill for a security analyst.
 <!--
  ```diff
